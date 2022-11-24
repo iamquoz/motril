@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using System.Text;
 
+string response = "HTTP/1.1 200 OK\r\nDate: Sun, 10 Oct 2010 23:26:07 GMT\r\nServer: Apache/2.2.8 (Ubuntu) mod_ssl/2.2.8 OpenSSL/0.9.8g\r\nLast-Modified: Sun, 26 Sep 2010 22:04:35 GMT\r\nETag: \"45b6-834-49130cc1182c0\"\r\nAccept-Ranges: bytes\r\nContent-Length: 12\r\nConnection: close\r\nContent-Type: text/html\r\n\r\nHello world!";
 var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
 socket.Bind(new IPEndPoint(IPAddress.Any, 50000));
@@ -15,18 +16,7 @@ while (true)
 	var buffer = new byte[65536];
 	var bytesReceived = await handler.ReceiveAsync(buffer, SocketFlags.None);
 	var request = Encoding.UTF8.GetString(buffer, 0, bytesReceived);
+	buffer = Encoding.UTF8.GetBytes(response);
 
-	if (request.Contains("GET")) {
-		var page = request.Split(" ").Last().TrimEnd(Environment.NewLine.ToCharArray());
-		Console.WriteLine(page);
-		if (page == "/index.html")
-			buffer = Encoding.UTF8.GetBytes("<html><head></head><body><h1>test</h1></body></html>\n");
-		else
-			buffer = Encoding.UTF8.GetBytes("HTTP/1.1 404 Not Found\n");
-	}
-	else
-	{
-		buffer = Encoding.UTF8.GetBytes("HTTP/1.1 419 Method not supported\n");
-	}
 	await handler.SendAsync(buffer, SocketFlags.None);
 }
